@@ -145,28 +145,48 @@
 
     // --- DATA ---
     async function fetchData() {
-        if (!currentUser) return;
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        
-        let data = { pompki: { daily: 0, total: 0, goal: 100 } };
-        if (docSnap.exists()) {
-            data = docSnap.data();
-        } else {
-            await setDoc(docRef, data);
+    if (!currentUser) return;
+    const docRef = doc(db, "users", currentUser.uid);
+    const docSnap = await getDoc(docRef);
+    
+    const today = new Date().toLocaleDateString(); // Dzisiejsza data jako tekst
+    let data = { 
+        lastUpdate: today,
+        pompki: { daily: 0, total: 0, goal: 100 },
+        przysiady: { daily: 0, total: 0, goal: 100 },
+        brzuszki: { daily: 0, total: 0, goal: 100 },
+        pajacyki: { daily: 0, total: 0, goal: 100 }
+    };
+
+    if (docSnap.exists()) {
+        const cloudData = docSnap.data();
+        // Sprawdź czy data w chmurze jest inna niż dzisiejsza
+        if (cloudData.lastUpdate !== today) {
+            // Jeśli nowy dzień, wyzeruj daily dla wszystkich ćwiczeń
+            Object.keys(cloudData).forEach(key => {
+                if (cloudData[key] && cloudData[key].daily !== undefined) {
+                    cloudData[key].daily = 0;
+                }
+            });
+            cloudData.lastUpdate = today;
+            await setDoc(docRef, cloudData);
         }
-
-        const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100 };
-        document.getElementById('dailyDisplay').innerText = ex.daily;
-        document.getElementById('totalDisplay').innerText = ex.total;
-        document.getElementById('targetDisplay').innerText = ex.goal;
-
-        // Achievements
-        document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
-        document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
-        document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
-        document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
+        data = cloudData;
+    } else {
+        await setDoc(docRef, data);
     }
+
+    const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100 };
+    document.getElementById('dailyDisplay').innerText = ex.daily;
+    document.getElementById('totalDisplay').innerText = ex.total;
+    document.getElementById('targetDisplay').innerText = ex.goal;
+
+    // Achievements
+    document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
+    document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
+    document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
+    document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
+}
 
     window.addReps = async (n) => {
         const docRef = doc(db, "users", currentUser.uid);
