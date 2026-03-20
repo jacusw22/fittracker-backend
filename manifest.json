@@ -1,0 +1,15 @@
+{
+  "name": "FitTracker Pro",
+  "short_name": "FitTracker",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#007AFF",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2936/2936886.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
