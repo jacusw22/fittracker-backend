@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Custom</title>
+    <title>FitTracker Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,6 @@
         .overlay.show { display: flex; }
         .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
         .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; font-size: 14px; width: 100%; margin-top: 8px; }
-        .ex-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
         .input-dark { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .ach-icon { font-size: 24px; filter: grayscale(1); opacity: 0.3; transition: 0.5s; }
         .ach-icon.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1.2); }
@@ -80,34 +79,31 @@
             <div class="bubble-action" onclick="logout()">🚪</div>
         </div>
     </div>
-
     <div class="bottom-nav" id="exerciseNav"></div>
 </div>
 
 <div class="overlay show" id="overlayLogin">
     <div class="modal">
-        <h2>Witaj w FitTracker</h2>
-        <p style="color:var(--muted); margin: 15px 0;">Zaloguj się przez Google, aby zarządzać swoimi ćwiczeniami.</p>
+        <h2>FitTracker Pro</h2>
         <button class="btn" style="background:#EA4335" onclick="login()">Zaloguj przez Google</button>
     </div>
 </div>
 
 <div class="overlay" id="overlayManage" onclick="closeModal('overlayManage')">
     <div class="modal" onclick="event.stopPropagation()">
-        <h3>Twoje ćwiczenia</h3>
+        <h3>Zarządzaj listą</h3>
         <div id="manageList" style="margin: 15px 0;"></div>
-        <input type="text" id="newExInput" class="input-dark" placeholder="Nazwa (np. Podciągania)">
-        <button class="btn" style="background: var(--accent)" onclick="addNewExercise()">DODAJ NOWE</button>
+        <input type="text" id="newExInput" class="input-dark" placeholder="Nowe ćwiczenie...">
+        <button class="btn" style="background: var(--accent)" onclick="addNewExercise()">DODAJ</button>
         <button class="btn" style="background: #8E8E93" onclick="closeModal('overlayManage')">ZAMKNIJ</button>
     </div>
 </div>
 
 <div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
     <div class="modal" onclick="event.stopPropagation()">
-        <input type="number" id="timerInput" class="input-dark" style="text-align:center; font-size:24px" value="60">
-        <div id="timerDisplay" style="font-size: 50px; font-weight: 800; margin: 10px 0;">01:00</div>
+        <input type="number" id="timerInput" class="input-dark" style="text-align:center" value="60">
+        <div id="timerDisplay" style="font-size: 50px; font-weight: 800;">01:00</div>
         <button class="btn" id="timerBtn" style="background:#34C759" onclick="toggleTimer()">START</button>
-        <button class="btn" style="background:#8E8E93" onclick="resetTimer()">RESET</button>
     </div>
 </div>
 
@@ -135,7 +131,6 @@
     let allExercises = [];
     let timerInterval, timeLeft = 60, isTimerRunning = false;
 
-    // AUTH
     window.login = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
 
@@ -151,13 +146,12 @@
         }
     });
 
-    // DATA LOGIC
     async function fetchData() {
         if (!currentUser) return;
         const docRef = doc(db, "users", currentUser.uid);
         const docSnap = await getDoc(docRef);
-        
         const today = new Date().toLocaleDateString();
+        
         let data = { 
             lastUpdate: today,
             exercises: ['pompki', 'przysiady', 'brzuszki'],
@@ -178,8 +172,6 @@
         }
 
         allExercises = data.exercises || ['pompki'];
-        if (!allExercises.includes(currentExercise)) currentExercise = allExercises[0];
-        
         renderNav();
         renderManageList();
 
@@ -188,7 +180,6 @@
         document.getElementById('dailyDisplay').innerText = ex.daily;
         document.getElementById('totalDisplay').innerText = ex.total;
         document.getElementById('targetDisplay').innerText = ex.goal;
-        
         updateAchievements(ex);
     }
 
@@ -202,43 +193,43 @@
 
     function renderManageList() {
         document.getElementById('manageList').innerHTML = allExercises.map(ex => `
-            <div class="ex-list-item">
+            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #2C2C2C;">
                 <span>${ex}</span>
-                <button onclick="window.deleteExercise('${ex}')" style="background:none; border:none; color:#FF3B30; font-weight:800; cursor:pointer">USUŃ</button>
+                <button onclick="window.deleteExercise('${ex}')" style="background:none; border:none; color:#FF3B30; font-weight:800;">USUŃ</button>
             </div>
         `).join('');
     }
 
+    window.switchExercise = (name) => { currentExercise = name; fetchData(); };
+
     window.addNewExercise = async () => {
-        const input = document.getElementById('newExInput');
-        const name = input.value.trim().toLowerCase();
-        if (name && !allExercises.includes(name)) {
-            allExercises.push(name);
-            const docRef = doc(db, "users", currentUser.uid);
-            await updateDoc(docRef, {
+        const val = document.getElementById('newExInput').value.trim().toLowerCase();
+        if (val && !allExercises.includes(val)) {
+            allExercises.push(val);
+            await updateDoc(doc(db, "users", currentUser.uid), {
                 exercises: allExercises,
-                [name]: { daily: 0, total: 0, goal: 100 }
+                [val]: { daily: 0, total: 0, goal: 100 }
             });
-            input.value = '';
+            document.getElementById('newExInput').value = '';
             fetchData();
         }
     };
 
     window.deleteExercise = async (name) => {
-        if (allExercises.length <= 1) return alert("Zostaw chociaż jedno ćwiczenie!");
-        if (confirm(`Czy na pewno usunąć ${name}?`)) {
+        if (allExercises.length <= 1) return;
+        if (confirm(`Usunąć ${name}?`)) {
             allExercises = allExercises.filter(e => e !== name);
-            const docRef = doc(db, "users", currentUser.uid);
-            await updateDoc(docRef, { exercises: allExercises, [name]: deleteField() });
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                exercises: allExercises,
+                [name]: deleteField()
+            });
+            if (currentExercise === name) currentExercise = allExercises[0];
             fetchData();
         }
     };
 
-    window.switchExercise = (name) => { currentExercise = name; fetchData(); };
-
     window.addReps = async (n) => {
-        const docRef = doc(db, "users", currentUser.uid);
-        await updateDoc(docRef, {
+        await updateDoc(doc(db, "users", currentUser.uid), {
             [`${currentExercise}.daily`]: increment(n),
             [`${currentExercise}.total`]: increment(n)
         });
@@ -246,56 +237,41 @@
     };
 
     window.changeGoal = async () => {
-        const newGoal = prompt("Ustaw nowy cel:", document.getElementById('targetDisplay').innerText);
-        if (newGoal && !isNaN(newGoal)) {
-            const docRef = doc(db, "users", currentUser.uid);
-            await updateDoc(docRef, { [`${currentExercise}.goal`]: parseInt(newGoal) });
+        const g = prompt("Cel:", document.getElementById('targetDisplay').innerText);
+        if (g) {
+            await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.goal`]: parseInt(g) });
             fetchData();
         }
     };
 
-    // UI & TIMER
     window.openModal = (id) => document.getElementById(id).classList.add('show');
     window.closeModal = (id) => document.getElementById(id).classList.remove('show');
-    
     window.toggleTheme = () => {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
-        document.getElementById('themeIcon').innerText = theme === 'dark' ? '☀️' : '🌙';
+        const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', t);
+        document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙';
     };
-
-    window.toggleTimer = () => {
-        if (isTimerRunning) {
-            clearInterval(timerInterval); isTimerRunning = false;
-            document.getElementById('timerBtn').innerText = "WZNÓW";
-        } else {
-            if (timeLeft === 60) timeLeft = parseInt(document.getElementById('timerInput').value);
-            isTimerRunning = true;
-            document.getElementById('timerBtn').innerText = "PAUZA";
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) { timeLeft--; updateTimerUI(); }
-                else { clearInterval(timerInterval); alert("Czas minął!"); resetTimer(); }
-            }, 1000);
-        }
-    };
-
-    window.resetTimer = () => {
-        clearInterval(timerInterval); isTimerRunning = false;
-        timeLeft = parseInt(document.getElementById('timerInput').value);
-        updateTimerUI();
-        document.getElementById('timerBtn').innerText = "START";
-    };
-
-    function updateTimerUI() {
-        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-
     function updateAchievements(ex) {
         document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
         document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
         document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
         document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
+    }
+
+    window.toggleTimer = () => {
+        if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('timerBtn').innerText = "WZNÓW"; }
+        else {
+            if (timeLeft === 60) timeLeft = parseInt(document.getElementById('timerInput').value);
+            isTimerRunning = true; document.getElementById('timerBtn').innerText = "PAUZA";
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
+                else { clearInterval(timerInterval); alert("Czas minął!"); resetTimer(); }
+            }, 1000);
+        }
+    };
+    function updateTimerDisplay() {
+        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+        document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 </script>
 </body>
