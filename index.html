@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Ultra + Audio</title>
+    <title>FitTracker Ultra Pro</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -19,25 +19,42 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
-        .container { width: 100%; max-width: 420px; min-height: 100dvh; display: flex; flex-direction: column; padding: 15px; }
+        
+        .container { 
+            width: 100%; 
+            max-width: 420px; 
+            height: 100dvh; /* Dynamiczne vh - kluczowe dla telefonów */
+            display: flex; 
+            flex-direction: column; 
+            padding: 15px; 
+            position: relative;
+        }
+
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
         .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .bubble-cluster { height: 350px; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        
+        .bubble-cluster { height: 320px; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
         .bubble { border-radius: 50%; background-color: var(--card-bg); border: 2px solid var(--accent); box-shadow: var(--glow); transition: all 0.2s; cursor: pointer; position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .bubble-completed { width: 190px; height: 190px; z-index: 5; border-color: #A855F7; }
-        .bubble-target { width: 100px; height: 100px; top: 5%; left: 5%; border-color: #007AFF; }
-        .bubble-total { width: 110px; height: 110px; bottom: 5%; right: 5%; border-color: #F97316; }
-        .bubble-actions { position: absolute; right: 5%; top: 30%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
-        .bubble-action { width: 48px; height: 48px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: white; }
-        .count-val { font-size: 50px; font-weight: 800; line-height: 1; }
+        
+        .bubble-completed { width: 180px; height: 180px; z-index: 5; border-color: #A855F7; }
+        .bubble-target { width: 95px; height: 95px; top: 5%; left: 5%; border-color: #007AFF; }
+        .bubble-total { width: 105px; height: 105px; bottom: 5%; right: 5%; border-color: #F97316; }
+        
+        .count-val { font-size: 48px; font-weight: 800; line-height: 1; }
         .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-        .history-section { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 20px; border: 1px solid var(--border); }
-        .history-title { font-size: 14px; font-weight: 800; margin-bottom: 15px; color: var(--muted); }
-        .chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; margin-bottom: 10px; }
-        .bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; transition: 0.5s; position: relative; }
-        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: auto; margin-bottom: 10px; border: 1px solid var(--border); }
+        
+        .bubble-actions { position: absolute; right: 5%; top: 25%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
+        .bubble-action { width: 45px; height: 45px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: white; }
+        
+        .history-section { background: var(--card-bg); border-radius: var(--radius); padding: 15px; margin: 10px 0; border: 1px solid var(--border); }
+        .history-title { font-size: 12px; font-weight: 800; margin-bottom: 10px; color: var(--muted); text-align: center; }
+        .chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; justify-content: center; }
+        .bar { flex: 1; max-width: 30px; background: var(--accent); border-radius: 4px 4px 0 0; transition: 0.5s; position: relative; }
+
+        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: auto; margin-bottom: 15px; border: 1px solid var(--border); z-index: 20; }
         .nav-item { padding: 12px 18px; background-color: var(--bg); border-radius: 12px; font-weight: 600; font-size: 13px; color: var(--muted); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
         .nav-item.active { background-color: var(--accent); color: white; border-color: var(--accent); }
+        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .overlay.show { display: flex; }
         .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); }
@@ -51,14 +68,14 @@
 
 <div class="container" id="appContent" style="display:none;">
     <div class="header">
-        <h1 id="exerciseTitle">Pompki</h1>
+        <h1 id="exerciseTitle">Wybierz...</h1>
         <div style="display:flex; gap:10px;">
             <button class="theme-btn" onclick="openModal('overlayManage')">⚙️</button>
             <button class="theme-btn" onclick="toggleTheme()" id="themeIcon">☀️</button>
         </div>
     </div>
 
-    <div style="display:flex; justify-content:center; gap:15px; margin: 15px 0;">
+    <div style="display:flex; justify-content:center; gap:15px; margin: 10px 0;">
         <span class="ach-icon" id="ach-10">🥉</span>
         <span class="ach-icon" id="ach-50">🥈</span>
         <span class="ach-icon" id="ach-100">🥇</span>
@@ -93,7 +110,12 @@
     <div class="bottom-nav" id="exerciseNav"></div>
 </div>
 
-<div class="overlay show" id="overlayLogin"><div class="modal"><h2>FitTracker Ultra</h2><button class="btn" style="background:#EA4335" onclick="login()">Zaloguj Google</button></div></div>
+<div class="overlay show" id="overlayLogin">
+    <div class="modal">
+        <h2>FitTracker Ultra</h2>
+        <button class="btn" style="background:#EA4335" onclick="login()">Zaloguj Google</button>
+    </div>
+</div>
 
 <div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
     <div class="modal" onclick="event.stopPropagation()">
@@ -107,9 +129,11 @@
 
 <div class="overlay" id="overlayManage" onclick="closeModal('overlayManage')">
     <div class="modal" onclick="event.stopPropagation()">
-        <h3>Zarządzaj listą</h3><div id="manageList" style="margin:15px 0;"></div>
+        <h3>Zarządzaj listą</h3>
+        <div id="manageList" style="margin:15px 0; max-height:200px; overflow-y:auto;"></div>
         <input type="text" id="newExInput" class="input-dark" placeholder="Nowe ćwiczenie...">
         <button class="btn" style="background:var(--accent)" onclick="addNewExercise()">DODAJ</button>
+        <button class="btn" style="background:#8E8E93" onclick="closeModal('overlayManage')">ANULUJ</button>
     </div>
 </div>
 
@@ -135,16 +159,24 @@
     let currentUser = null, currentExercise = 'pompki', allExercises = [];
     let timerInterval, timeLeft = 60, isTimerRunning = false;
     
-    // AUDIO SYSTEM
+    // AUDIO: Krótki ding (1s) i Tada!
     const winAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
-    const timerAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/1003/1003-preview.mp3');
+    const timerAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    timerAudio.volume = 0.5;
 
     window.login = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
-        if (user) { currentUser = user; document.getElementById('overlayLogin').classList.remove('show'); document.getElementById('appContent').style.display = 'block'; fetchData(); }
-        else { document.getElementById('overlayLogin').classList.add('show'); document.getElementById('appContent').style.display = 'none'; }
+        if (user) { 
+            currentUser = user; 
+            document.getElementById('overlayLogin').classList.remove('show'); 
+            document.getElementById('appContent').style.display = 'flex'; 
+            fetchData(); 
+        } else { 
+            document.getElementById('overlayLogin').classList.add('show'); 
+            document.getElementById('appContent').style.display = 'none'; 
+        }
     });
 
     async function fetchData() {
@@ -154,6 +186,7 @@
         const today = new Date().toLocaleDateString();
         
         let data = docSnap.exists() ? docSnap.data() : { exercises: ['pompki'], lastUpdate: today };
+
         if (data.lastUpdate !== today) {
             data.exercises.forEach(ex => {
                 if(data[ex]) {
@@ -164,29 +197,44 @@
                 }
             });
             data.lastUpdate = today;
-            await setDoc(docRef, data);
+            await setDoc(docRef, data, { merge: true });
         }
 
         allExercises = data.exercises || ['pompki'];
-        renderNav(); renderManageList();
+        if (!allExercises.includes(currentExercise)) currentExercise = allExercises[0];
+
+        renderNav();
+        renderManageList();
+
         const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100, history: [] };
         document.getElementById('exerciseTitle').innerText = currentExercise.toUpperCase();
         document.getElementById('dailyDisplay').innerText = ex.daily;
         document.getElementById('totalDisplay').innerText = ex.total;
         document.getElementById('targetDisplay').innerText = ex.goal;
-        renderChart(ex.history || []); updateAchievements(ex);
+        
+        renderChart(ex.history || []);
+        updateAchievements(ex);
     }
 
     window.toggleTimer = () => {
-        if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('timerBtn').innerText = "WZNÓW"; }
-        else {
-            if (timeLeft <= 0 || !isTimerRunning) timeLeft = parseInt(document.getElementById('timerInput').value);
-            isTimerRunning = true; document.getElementById('timerBtn').innerText = "PAUZA";
+        if (isTimerRunning) { 
+            clearInterval(timerInterval); 
+            isTimerRunning = false; 
+            document.getElementById('timerBtn').innerText = "WZNÓW"; 
+        } else {
+            if (timeLeft <= 0 || !isTimerRunning) {
+                const inputVal = parseInt(document.getElementById('timerInput').value);
+                timeLeft = inputVal > 0 ? inputVal : 60;
+            }
+            isTimerRunning = true; 
+            document.getElementById('timerBtn').innerText = "PAUZA";
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
-                else { 
+                if (timeLeft > 0) { 
+                    timeLeft--; 
+                    updateTimerDisplay(); 
+                } else { 
                     clearInterval(timerInterval); 
-                    timerAudio.play(); // DŹWIĘK KOŃCA
+                    timerAudio.play(); 
                     alert("Czas minął!"); 
                     resetTimer(); 
                 }
@@ -194,32 +242,103 @@
         }
     };
 
-    function resetTimer() { isTimerRunning = false; timeLeft = 60; document.getElementById('timerBtn').innerText = "START"; updateTimerDisplay(); }
-    function updateTimerDisplay() { const m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+    function resetTimer() { 
+        isTimerRunning = false; 
+        timeLeft = parseInt(document.getElementById('timerInput').value) || 60; 
+        document.getElementById('timerBtn').innerText = "START"; 
+        updateTimerDisplay(); 
+    }
+
+    function updateTimerDisplay() { 
+        const m = Math.floor(timeLeft / 60), s = timeLeft % 60; 
+        document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; 
+    }
+
     function renderChart(history) {
         const chart = document.getElementById('historyChart');
         const max = Math.max(...history.map(h => h.val), 10);
-        chart.innerHTML = history.map(h => `<div class="bar" style="height: ${(h.val/max)*100}%" title="${h.val}"></div>`).join('') || '<p style="color:gray; font-size:12px;">Brak danych</p>';
+        chart.innerHTML = history.map(h => `
+            <div class="bar" style="height: ${(h.val/max)*100}%" title="${h.date}: ${h.val}"></div>
+        `).join('') || '<p style="color:gray; font-size:12px;">Brak danych</p>';
     }
 
     function updateAchievements(ex) {
-        const thresholds = [10, 50, 100, ex.goal];
+        const thresholds = [10, 50, 100, parseInt(ex.goal)];
         const ids = ['ach-10', 'ach-50', 'ach-100', 'ach-target'];
         ids.forEach((id, i) => {
             const el = document.getElementById(id);
             if(ex.daily >= thresholds[i] && !el.classList.contains('unlocked')) {
                 el.classList.add('unlocked');
-                winAudio.play(); // DŹWIĘK TROFEUM
+                winAudio.play();
+            } else if (ex.daily < thresholds[i]) {
+                el.classList.remove('unlocked');
             }
         });
     }
 
-    window.addReps = async (n) => { await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.daily`]: increment(n), [`${currentExercise}.total`]: increment(n) }); fetchData(); };
+    window.addReps = async (n) => {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            [`${currentExercise}.daily`]: increment(n),
+            [`${currentExercise}.total`]: increment(n)
+        });
+        fetchData();
+    };
+
+    window.changeGoal = async () => {
+        const g = prompt("Podaj nowy cel:", document.getElementById('targetDisplay').innerText);
+        if (g && !isNaN(g)) {
+            await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.goal`]: parseInt(g) });
+            fetchData();
+        }
+    };
+
+    window.addNewExercise = async () => {
+        const val = document.getElementById('newExInput').value.trim().toLowerCase();
+        if (val && !allExercises.includes(val)) {
+            allExercises.push(val);
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                exercises: allExercises,
+                [val]: { daily: 0, total: 0, goal: 100, history: [] }
+            });
+            document.getElementById('newExInput').value = '';
+            fetchData();
+        }
+    };
+
+    window.deleteExercise = async (name) => {
+        if (allExercises.length <= 1) return;
+        if (confirm(`Usunąć ${name}?`)) {
+            allExercises = allExercises.filter(e => e !== name);
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                exercises: allExercises,
+                [name]: deleteField()
+            });
+            if (currentExercise === name) currentExercise = allExercises[0];
+            fetchData();
+        }
+    };
+
     window.switchExercise = (n) => { currentExercise = n; fetchData(); };
     window.openModal = (id) => document.getElementById(id).classList.add('show');
     window.closeModal = (id) => document.getElementById(id).classList.remove('show');
-    window.toggleTheme = () => { const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', t); document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙'; };
-    function renderNav() { document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `<div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">${ex.toUpperCase()}</div>`).join(''); }
+    window.toggleTheme = () => {
+        const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', t);
+        document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙';
+    };
+    function renderNav() { 
+        document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `
+            <div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">${ex.toUpperCase()}</div>
+        `).join(''); 
+    }
+    function renderManageList() { 
+        document.getElementById('manageList').innerHTML = allExercises.map(ex => `
+            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #2C2C2C;">
+                <span>${ex}</span>
+                <button onclick="window.deleteExercise('${ex}')" style="color:#FF3B30; background:none; border:none; font-weight:800;">USUŃ</button>
+            </div>
+        `).join(''); 
+    }
 </script>
 </body>
 </html>
