@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Pro</title>
+    <title>FitTracker Ultra + Audio</title>
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -18,44 +18,31 @@
             --glow: 0 0 20px rgba(255, 59, 48, 0.2);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; transition: 0.3s; }
-        
-        .container { 
-            width: 100%; 
-            max-width: 420px; 
-            height: 100dvh; /* Naprawia ucinanie dołu na telefonie */
-            display: flex; 
-            flex-direction: column; 
-            padding: 15px; 
-            position: relative; 
-        }
-
+        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; transition: 0.3s; }
+        .container { width: 100%; max-width: 420px; min-height: 100dvh; display: flex; flex-direction: column; padding: 15px; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
         .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        
-        .bubble-cluster { flex: 1; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
+        .bubble-cluster { height: 350px; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         .bubble { border-radius: 50%; background-color: var(--card-bg); border: 2px solid var(--accent); box-shadow: var(--glow); transition: all 0.2s; cursor: pointer; position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        
-        /* Zoptymalizowane rozmiary bąbelków pod telefon */
-        .bubble-completed { width: 32vh; height: 32vh; max-width: 200px; max-height: 200px; z-index: 5; border-color: #A855F7; }
-        .bubble-target { width: 18vh; height: 18vh; max-width: 100px; max-height: 100px; top: 5%; left: 5%; border-color: #007AFF; }
-        .bubble-total { width: 20vh; height: 20vh; max-width: 115px; max-height: 115px; bottom: 15%; right: 5%; border-color: #F97316; }
-        
-        .count-val { font-size: 8vh; font-weight: 800; line-height: 1; }
-        .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-        
+        .bubble-completed { width: 190px; height: 190px; z-index: 5; border-color: #A855F7; }
+        .bubble-target { width: 100px; height: 100px; top: 5%; left: 5%; border-color: #007AFF; }
+        .bubble-total { width: 110px; height: 110px; bottom: 5%; right: 5%; border-color: #F97316; }
         .bubble-actions { position: absolute; right: 5%; top: 30%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
-        .bubble-action { width: 48px; height: 48px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-        
-        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; min-height: 60px; z-index: 20; }
+        .bubble-action { width: 48px; height: 48px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: white; }
+        .count-val { font-size: 50px; font-weight: 800; line-height: 1; }
+        .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .history-section { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 20px; border: 1px solid var(--border); }
+        .history-title { font-size: 14px; font-weight: 800; margin-bottom: 15px; color: var(--muted); }
+        .chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; margin-bottom: 10px; }
+        .bar { flex: 1; background: var(--accent); border-radius: 4px 4px 0 0; transition: 0.5s; position: relative; }
+        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-top: auto; margin-bottom: 10px; border: 1px solid var(--border); }
         .nav-item { padding: 12px 18px; background-color: var(--bg); border-radius: 12px; font-weight: 600; font-size: 13px; color: var(--muted); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
         .nav-item.active { background-color: var(--accent); color: white; border-color: var(--accent); }
-        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .overlay.show { display: flex; }
-        .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
+        .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); }
         .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; font-size: 14px; width: 100%; margin-top: 8px; }
-        .input-dark { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
+        .input-dark { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; font-size: 16px; text-align: center; }
         .ach-icon { font-size: 24px; filter: grayscale(1); opacity: 0.3; transition: 0.5s; }
         .ach-icon.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1.2); }
     </style>
@@ -71,7 +58,7 @@
         </div>
     </div>
 
-    <div style="display:flex; justify-content:center; gap:10px; margin: 10px 0;">
+    <div style="display:flex; justify-content:center; gap:15px; margin: 15px 0;">
         <span class="ach-icon" id="ach-10">🥉</span>
         <span class="ach-icon" id="ach-50">🥈</span>
         <span class="ach-icon" id="ach-100">🥇</span>
@@ -80,7 +67,7 @@
 
     <div class="bubble-cluster">
         <div class="bubble bubble-target" onclick="changeGoal()">
-            <span style="font-size: 26px; font-weight: 800;" id="targetDisplay">100</span>
+            <span style="font-size: 24px; font-weight: 800;" id="targetDisplay">100</span>
             <span class="label">Cel</span>
         </div>
         <div class="bubble bubble-completed" onclick="addReps(10)">
@@ -89,7 +76,7 @@
             <div style="position: absolute; top: 15%; right: 15%; font-weight: 800; color: #34C759;">+10</div>
         </div>
         <div class="bubble bubble-total">
-            <span style="font-size: 30px; font-weight: 800;" id="totalDisplay">0</span>
+            <span style="font-size: 28px; font-weight: 800;" id="totalDisplay">0</span>
             <span class="label">Razem</span>
         </div>
         <div class="bubble-actions">
@@ -97,31 +84,32 @@
             <div class="bubble-action" onclick="logout()">🚪</div>
         </div>
     </div>
+
+    <div class="history-section">
+        <p class="history-title">OSTATNIE 7 DNI</p>
+        <div class="chart" id="historyChart"></div>
+    </div>
+
     <div class="bottom-nav" id="exerciseNav"></div>
 </div>
 
-<div class="overlay show" id="overlayLogin">
-    <div class="modal">
-        <h2>FitTracker Pro</h2>
-        <button class="btn" style="background:#EA4335" onclick="login()">Zaloguj przez Google</button>
+<div class="overlay show" id="overlayLogin"><div class="modal"><h2>FitTracker Ultra</h2><button class="btn" style="background:#EA4335" onclick="login()">Zaloguj Google</button></div></div>
+
+<div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h3>Minutnik</h3>
+        <input type="number" id="timerInput" class="input-dark" value="60">
+        <div id="timerDisplay" style="font-size: 50px; font-weight: 800; margin: 10px 0;">01:00</div>
+        <button class="btn" id="timerBtn" style="background:#34C759" onclick="toggleTimer()">START</button>
+        <button class="btn" style="background:#8E8E93" onclick="closeModal('overlayTimer')">ZAMKNIJ</button>
     </div>
 </div>
 
 <div class="overlay" id="overlayManage" onclick="closeModal('overlayManage')">
     <div class="modal" onclick="event.stopPropagation()">
-        <h3>Zarządzaj listą</h3>
-        <div id="manageList" style="margin: 15px 0;"></div>
+        <h3>Zarządzaj listą</h3><div id="manageList" style="margin:15px 0;"></div>
         <input type="text" id="newExInput" class="input-dark" placeholder="Nowe ćwiczenie...">
-        <button class="btn" style="background: var(--accent)" onclick="addNewExercise()">DODAJ</button>
-        <button class="btn" style="background: #8E8E93" onclick="closeModal('overlayManage')">ZAMKNIJ</button>
-    </div>
-</div>
-
-<div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
-    <div class="modal" onclick="event.stopPropagation()">
-        <input type="number" id="timerInput" class="input-dark" style="text-align:center" value="60">
-        <div id="timerDisplay" style="font-size: 50px; font-weight: 800;">01:00</div>
-        <button class="btn" id="timerBtn" style="background:#34C759" onclick="toggleTimer()">START</button>
+        <button class="btn" style="background:var(--accent)" onclick="addNewExercise()">DODAJ</button>
     </div>
 </div>
 
@@ -144,24 +132,19 @@
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    let currentUser = null;
-    let currentExercise = 'pompki';
-    let allExercises = [];
+    let currentUser = null, currentExercise = 'pompki', allExercises = [];
     let timerInterval, timeLeft = 60, isTimerRunning = false;
+    
+    // AUDIO SYSTEM
+    const winAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+    const timerAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/1003/1003-preview.mp3');
 
     window.login = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('overlayLogin').classList.remove('show');
-            document.getElementById('appContent').style.display = 'flex';
-            fetchData();
-        } else {
-            document.getElementById('overlayLogin').classList.add('show');
-            document.getElementById('appContent').style.display = 'none';
-        }
+        if (user) { currentUser = user; document.getElementById('overlayLogin').classList.remove('show'); document.getElementById('appContent').style.display = 'block'; fetchData(); }
+        else { document.getElementById('overlayLogin').classList.add('show'); document.getElementById('appContent').style.display = 'none'; }
     });
 
     async function fetchData() {
@@ -170,129 +153,73 @@
         const docSnap = await getDoc(docRef);
         const today = new Date().toLocaleDateString();
         
-        let data = { 
-            lastUpdate: today,
-            exercises: ['pompki', 'przysiady', 'brzuszki'],
-            pompki: { daily: 0, total: 0, goal: 100 },
-            przysiady: { daily: 0, total: 0, goal: 100 },
-            brzuszki: { daily: 0, total: 0, goal: 100 }
-        };
-
-        if (docSnap.exists()) {
-            data = docSnap.data();
-            if (data.lastUpdate !== today) {
-                data.exercises.forEach(ex => { if(data[ex]) data[ex].daily = 0; });
-                data.lastUpdate = today;
-                await setDoc(docRef, data, { merge: true });
-            }
-        } else {
+        let data = docSnap.exists() ? docSnap.data() : { exercises: ['pompki'], lastUpdate: today };
+        if (data.lastUpdate !== today) {
+            data.exercises.forEach(ex => {
+                if(data[ex]) {
+                    if(!data[ex].history) data[ex].history = [];
+                    data[ex].history.push({ date: data.lastUpdate, val: data[ex].daily });
+                    if(data[ex].history.length > 7) data[ex].history.shift();
+                    data[ex].daily = 0;
+                }
+            });
+            data.lastUpdate = today;
             await setDoc(docRef, data);
         }
 
         allExercises = data.exercises || ['pompki'];
-        if (!allExercises.includes(currentExercise)) currentExercise = allExercises[0];
-        
-        renderNav();
-        renderManageList();
-
-        const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100 };
-        document.getElementById('exerciseTitle').innerText = currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1);
+        renderNav(); renderManageList();
+        const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100, history: [] };
+        document.getElementById('exerciseTitle').innerText = currentExercise.toUpperCase();
         document.getElementById('dailyDisplay').innerText = ex.daily;
         document.getElementById('totalDisplay').innerText = ex.total;
         document.getElementById('targetDisplay').innerText = ex.goal;
-        updateAchievements(ex);
-    }
-
-    function renderNav() {
-        document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `
-            <div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">
-                ${ex.charAt(0).toUpperCase() + ex.slice(1)}
-            </div>
-        `).join('');
-    }
-
-    function renderManageList() {
-        document.getElementById('manageList').innerHTML = allExercises.map(ex => `
-            <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #2C2C2C;">
-                <span>${ex}</span>
-                <button onclick="window.deleteExercise('${ex}')" style="background:none; border:none; color:#FF3B30; font-weight:800;">USUŃ</button>
-            </div>
-        `).join('');
-    }
-
-    window.switchExercise = (name) => { currentExercise = name; fetchData(); };
-
-    window.addNewExercise = async () => {
-        const val = document.getElementById('newExInput').value.trim().toLowerCase();
-        if (val && !allExercises.includes(val)) {
-            allExercises.push(val);
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                exercises: allExercises,
-                [val]: { daily: 0, total: 0, goal: 100 }
-            });
-            document.getElementById('newExInput').value = '';
-            fetchData();
-        }
-    };
-
-    window.deleteExercise = async (name) => {
-        if (allExercises.length <= 1) return;
-        if (confirm(`Usunąć ${name}?`)) {
-            allExercises = allExercises.filter(e => e !== name);
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                exercises: allExercises,
-                [name]: deleteField()
-            });
-            if (currentExercise === name) currentExercise = allExercises[0];
-            fetchData();
-        }
-    };
-
-    window.addReps = async (n) => {
-        await updateDoc(doc(db, "users", currentUser.uid), {
-            [`${currentExercise}.daily`]: increment(n),
-            [`${currentExercise}.total`]: increment(n)
-        });
-        fetchData();
-    };
-
-    window.changeGoal = async () => {
-        const g = prompt("Cel:", document.getElementById('targetDisplay').innerText);
-        if (g) {
-            await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.goal`]: parseInt(g) });
-            fetchData();
-        }
-    };
-
-    window.openModal = (id) => document.getElementById(id).classList.add('show');
-    window.closeModal = (id) => document.getElementById(id).classList.remove('show');
-    window.toggleTheme = () => {
-        const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', t);
-        document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙';
-    };
-    function updateAchievements(ex) {
-        document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
-        document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
-        document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
-        document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
+        renderChart(ex.history || []); updateAchievements(ex);
     }
 
     window.toggleTimer = () => {
         if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('timerBtn').innerText = "WZNÓW"; }
         else {
-            if (timeLeft === 60) timeLeft = parseInt(document.getElementById('timerInput').value);
+            if (timeLeft <= 0 || !isTimerRunning) timeLeft = parseInt(document.getElementById('timerInput').value);
             isTimerRunning = true; document.getElementById('timerBtn').innerText = "PAUZA";
             timerInterval = setInterval(() => {
                 if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
-                else { clearInterval(timerInterval); alert("Czas minął!"); resetTimer(); }
+                else { 
+                    clearInterval(timerInterval); 
+                    timerAudio.play(); // DŹWIĘK KOŃCA
+                    alert("Czas minął!"); 
+                    resetTimer(); 
+                }
             }, 1000);
         }
     };
-    function updateTimerDisplay() {
-        const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-        document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+    function resetTimer() { isTimerRunning = false; timeLeft = 60; document.getElementById('timerBtn').innerText = "START"; updateTimerDisplay(); }
+    function updateTimerDisplay() { const m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+    function renderChart(history) {
+        const chart = document.getElementById('historyChart');
+        const max = Math.max(...history.map(h => h.val), 10);
+        chart.innerHTML = history.map(h => `<div class="bar" style="height: ${(h.val/max)*100}%" title="${h.val}"></div>`).join('') || '<p style="color:gray; font-size:12px;">Brak danych</p>';
     }
+
+    function updateAchievements(ex) {
+        const thresholds = [10, 50, 100, ex.goal];
+        const ids = ['ach-10', 'ach-50', 'ach-100', 'ach-target'];
+        ids.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if(ex.daily >= thresholds[i] && !el.classList.contains('unlocked')) {
+                el.classList.add('unlocked');
+                winAudio.play(); // DŹWIĘK TROFEUM
+            }
+        });
+    }
+
+    window.addReps = async (n) => { await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.daily`]: increment(n), [`${currentExercise}.total`]: increment(n) }); fetchData(); };
+    window.switchExercise = (n) => { currentExercise = n; fetchData(); };
+    window.openModal = (id) => document.getElementById(id).classList.add('show');
+    window.closeModal = (id) => document.getElementById(id).classList.remove('show');
+    window.toggleTheme = () => { const t = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.body.setAttribute('data-theme', t); document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙'; };
+    function renderNav() { document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `<div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">${ex.toUpperCase()}</div>`).join(''); }
 </script>
 </body>
 </html>
