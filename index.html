@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Custom</title>
+    <title>FitTracker Pro</title>
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,22 +18,39 @@
             --glow: 0 0 20px rgba(255, 59, 48, 0.2);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; transition: 0.3s; }
-        .container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; padding: 15px; position: relative; }
+        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; transition: 0.3s; }
+        
+        .container { 
+            width: 100%; 
+            max-width: 420px; 
+            height: 100dvh; /* Naprawia ucinanie dołu na telefonie */
+            display: flex; 
+            flex-direction: column; 
+            padding: 15px; 
+            position: relative; 
+        }
+
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
         .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        
         .bubble-cluster { flex: 1; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
         .bubble { border-radius: 50%; background-color: var(--card-bg); border: 2px solid var(--accent); box-shadow: var(--glow); transition: all 0.2s; cursor: pointer; position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .bubble-completed { width: 42vh; height: 42vh; max-width: 230px; max-height: 230px; z-index: 5; border-color: #A855F7; }
-        .bubble-target { width: 24vh; height: 24vh; max-width: 125px; max-height: 125px; top: 5%; left: 5%; border-color: #007AFF; }
-        .bubble-total { width: 26vh; height: 26vh; max-width: 140px; max-height: 140px; bottom: 15%; right: 5%; border-color: #F97316; }
-        .count-val { font-size: 10vh; font-weight: 800; line-height: 1; }
-        .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Zoptymalizowane rozmiary bąbelków pod telefon */
+        .bubble-completed { width: 32vh; height: 32vh; max-width: 200px; max-height: 200px; z-index: 5; border-color: #A855F7; }
+        .bubble-target { width: 18vh; height: 18vh; max-width: 100px; max-height: 100px; top: 5%; left: 5%; border-color: #007AFF; }
+        .bubble-total { width: 20vh; height: 20vh; max-width: 115px; max-height: 115px; bottom: 15%; right: 5%; border-color: #F97316; }
+        
+        .count-val { font-size: 8vh; font-weight: 800; line-height: 1; }
+        .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        
         .bubble-actions { position: absolute; right: 5%; top: 30%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
         .bubble-action { width: 48px; height: 48px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; min-height: 60px; }
+        
+        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; min-height: 60px; z-index: 20; }
         .nav-item { padding: 12px 18px; background-color: var(--bg); border-radius: 12px; font-weight: 600; font-size: 13px; color: var(--muted); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
         .nav-item.active { background-color: var(--accent); color: white; border-color: var(--accent); }
+        
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .overlay.show { display: flex; }
         .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
@@ -165,7 +183,7 @@
             if (data.lastUpdate !== today) {
                 data.exercises.forEach(ex => { if(data[ex]) data[ex].daily = 0; });
                 data.lastUpdate = today;
-                await setDoc(docRef, data);
+                await setDoc(docRef, data, { merge: true });
             }
         } else {
             await setDoc(docRef, data);
