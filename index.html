@@ -23,7 +23,7 @@
         .container { 
             width: 100%; 
             max-width: 420px; 
-            height: 100dvh; /* Dynamiczne vh - kluczowe dla telefonów */
+            height: 100dvh; 
             display: flex; 
             flex-direction: column; 
             padding: 15px; 
@@ -37,14 +37,14 @@
         .bubble { border-radius: 50%; background-color: var(--card-bg); border: 2px solid var(--accent); box-shadow: var(--glow); transition: all 0.2s; cursor: pointer; position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         
         .bubble-completed { width: 180px; height: 180px; z-index: 5; border-color: #A855F7; }
-        .bubble-target { width: 95px; height: 95px; top: 5%; left: 5%; border-color: #007AFF; }
-        .bubble-total { width: 105px; height: 105px; bottom: 5%; right: 5%; border-color: #F97316; }
+        .bubble-target { width: 90px; height: 90px; top: 5%; left: 5%; border-color: #007AFF; }
+        .bubble-total { width: 100px; height: 100px; bottom: 5%; left: 5%; border-color: #F97316; }
         
         .count-val { font-size: 48px; font-weight: 800; line-height: 1; }
         .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
         
-        .bubble-actions { position: absolute; right: 5%; top: 25%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
-        .bubble-action { width: 45px; height: 45px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; color: white; }
+        .bubble-actions { position: absolute; right: 5%; top: 15%; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+        .bubble-action { width: 50px; height: 50px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; cursor: pointer; color: white; }
         
         .history-section { background: var(--card-bg); border-radius: var(--radius); padding: 15px; margin: 10px 0; border: 1px solid var(--border); }
         .history-title { font-size: 12px; font-weight: 800; margin-bottom: 10px; color: var(--muted); text-align: center; }
@@ -68,7 +68,7 @@
 
 <div class="container" id="appContent" style="display:none;">
     <div class="header">
-        <h1 id="exerciseTitle">Wybierz...</h1>
+        <h1 id="exerciseTitle">Trening</h1>
         <div style="display:flex; gap:10px;">
             <button class="theme-btn" onclick="openModal('overlayManage')">⚙️</button>
             <button class="theme-btn" onclick="toggleTheme()" id="themeIcon">☀️</button>
@@ -90,15 +90,16 @@
         <div class="bubble bubble-completed" onclick="addReps(10)">
             <span class="count-val" id="dailyDisplay">0</span>
             <span class="label">Dzisiaj</span>
-            <div style="position: absolute; top: 15%; right: 15%; font-weight: 800; color: #34C759;">+10</div>
         </div>
         <div class="bubble bubble-total">
             <span style="font-size: 28px; font-weight: 800;" id="totalDisplay">0</span>
             <span class="label">Razem</span>
         </div>
         <div class="bubble-actions">
-            <div class="bubble-action" onclick="openModal('overlayTimer')">⏱</div>
-            <div class="bubble-action" onclick="logout()">🚪</div>
+            <div class="bubble-action" onclick="addReps(5)" style="border-color: #34C759;">+5</div>
+            <div class="bubble-action" onclick="addReps(10)" style="border-color: #22C55E;">+10</div>
+            <div class="bubble-action" onclick="openModal('overlayTimer')" style="border-color: #007AFF;">⏱</div>
+            <div class="bubble-action" onclick="logout()" style="border-color: #8E8E93;">🚪</div>
         </div>
     </div>
 
@@ -110,12 +111,7 @@
     <div class="bottom-nav" id="exerciseNav"></div>
 </div>
 
-<div class="overlay show" id="overlayLogin">
-    <div class="modal">
-        <h2>FitTracker Ultra</h2>
-        <button class="btn" style="background:#EA4335" onclick="login()">Zaloguj Google</button>
-    </div>
-</div>
+<div class="overlay show" id="overlayLogin"><div class="modal"><h2>FitTracker Ultra</h2><button class="btn" style="background:#EA4335" onclick="login()">Zaloguj Google</button></div></div>
 
 <div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
     <div class="modal" onclick="event.stopPropagation()">
@@ -131,9 +127,9 @@
     <div class="modal" onclick="event.stopPropagation()">
         <h3>Zarządzaj listą</h3>
         <div id="manageList" style="margin:15px 0; max-height:200px; overflow-y:auto;"></div>
-        <input type="text" id="newExInput" class="input-dark" placeholder="Nowe ćwiczenie...">
+        <input type="text" id="newExInput" class="input-dark" placeholder="Nazwa ćwiczenia...">
         <button class="btn" style="background:var(--accent)" onclick="addNewExercise()">DODAJ</button>
-        <button class="btn" style="background:#8E8E93" onclick="closeModal('overlayManage')">ANULUJ</button>
+        <button class="btn" style="background:#8E8E93" onclick="closeModal('overlayManage')">POWRÓT</button>
     </div>
 </div>
 
@@ -159,10 +155,10 @@
     let currentUser = null, currentExercise = 'pompki', allExercises = [];
     let timerInterval, timeLeft = 60, isTimerRunning = false;
     
-    // AUDIO: Krótki ding (1s) i Tada!
+    // AUDIO: Krótki ding i Tada!
     const winAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
     const timerAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    timerAudio.volume = 0.5;
+    timerAudio.volume = 0.4;
 
     window.login = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
@@ -203,36 +199,23 @@
         allExercises = data.exercises || ['pompki'];
         if (!allExercises.includes(currentExercise)) currentExercise = allExercises[0];
 
-        renderNav();
-        renderManageList();
-
+        renderNav(); renderManageList();
         const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100, history: [] };
         document.getElementById('exerciseTitle').innerText = currentExercise.toUpperCase();
         document.getElementById('dailyDisplay').innerText = ex.daily;
         document.getElementById('totalDisplay').innerText = ex.total;
         document.getElementById('targetDisplay').innerText = ex.goal;
-        
-        renderChart(ex.history || []);
-        updateAchievements(ex);
+        renderChart(ex.history || []); updateAchievements(ex);
     }
 
     window.toggleTimer = () => {
-        if (isTimerRunning) { 
-            clearInterval(timerInterval); 
-            isTimerRunning = false; 
-            document.getElementById('timerBtn').innerText = "WZNÓW"; 
-        } else {
-            if (timeLeft <= 0 || !isTimerRunning) {
-                const inputVal = parseInt(document.getElementById('timerInput').value);
-                timeLeft = inputVal > 0 ? inputVal : 60;
-            }
-            isTimerRunning = true; 
-            document.getElementById('timerBtn').innerText = "PAUZA";
+        if (isTimerRunning) { clearInterval(timerInterval); isTimerRunning = false; document.getElementById('timerBtn').innerText = "WZNÓW"; }
+        else {
+            if (timeLeft <= 0 || !isTimerRunning) timeLeft = parseInt(document.getElementById('timerInput').value) || 60;
+            isTimerRunning = true; document.getElementById('timerBtn').innerText = "PAUZA";
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) { 
-                    timeLeft--; 
-                    updateTimerDisplay(); 
-                } else { 
+                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
+                else { 
                     clearInterval(timerInterval); 
                     timerAudio.play(); 
                     alert("Czas minął!"); 
@@ -242,24 +225,13 @@
         }
     };
 
-    function resetTimer() { 
-        isTimerRunning = false; 
-        timeLeft = parseInt(document.getElementById('timerInput').value) || 60; 
-        document.getElementById('timerBtn').innerText = "START"; 
-        updateTimerDisplay(); 
-    }
-
-    function updateTimerDisplay() { 
-        const m = Math.floor(timeLeft / 60), s = timeLeft % 60; 
-        document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; 
-    }
+    function resetTimer() { isTimerRunning = false; timeLeft = 60; document.getElementById('timerBtn').innerText = "START"; updateTimerDisplay(); }
+    function updateTimerDisplay() { const m = Math.floor(timeLeft / 60), s = timeLeft % 60; document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
 
     function renderChart(history) {
         const chart = document.getElementById('historyChart');
         const max = Math.max(...history.map(h => h.val), 10);
-        chart.innerHTML = history.map(h => `
-            <div class="bar" style="height: ${(h.val/max)*100}%" title="${h.date}: ${h.val}"></div>
-        `).join('') || '<p style="color:gray; font-size:12px;">Brak danych</p>';
+        chart.innerHTML = history.map(h => `<div class="bar" style="height: ${(h.val/max)*100}%" title="${h.val}"></div>`).join('') || '<p style="color:gray; font-size:12px;">Brak danych</p>';
     }
 
     function updateAchievements(ex) {
@@ -268,11 +240,8 @@
         ids.forEach((id, i) => {
             const el = document.getElementById(id);
             if(ex.daily >= thresholds[i] && !el.classList.contains('unlocked')) {
-                el.classList.add('unlocked');
-                winAudio.play();
-            } else if (ex.daily < thresholds[i]) {
-                el.classList.remove('unlocked');
-            }
+                el.classList.add('unlocked'); winAudio.play();
+            } else if (ex.daily < thresholds[i]) { el.classList.remove('unlocked'); }
         });
     }
 
@@ -285,7 +254,7 @@
     };
 
     window.changeGoal = async () => {
-        const g = prompt("Podaj nowy cel:", document.getElementById('targetDisplay').innerText);
+        const g = prompt("Cel:", document.getElementById('targetDisplay').innerText);
         if (g && !isNaN(g)) {
             await updateDoc(doc(db, "users", currentUser.uid), { [`${currentExercise}.goal`]: parseInt(g) });
             fetchData();
@@ -296,12 +265,8 @@
         const val = document.getElementById('newExInput').value.trim().toLowerCase();
         if (val && !allExercises.includes(val)) {
             allExercises.push(val);
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                exercises: allExercises,
-                [val]: { daily: 0, total: 0, goal: 100, history: [] }
-            });
-            document.getElementById('newExInput').value = '';
-            fetchData();
+            await updateDoc(doc(db, "users", currentUser.uid), { exercises: allExercises, [val]: { daily: 0, total: 0, goal: 100, history: [] } });
+            document.getElementById('newExInput').value = ''; fetchData();
         }
     };
 
@@ -309,10 +274,7 @@
         if (allExercises.length <= 1) return;
         if (confirm(`Usunąć ${name}?`)) {
             allExercises = allExercises.filter(e => e !== name);
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                exercises: allExercises,
-                [name]: deleteField()
-            });
+            await updateDoc(doc(db, "users", currentUser.uid), { exercises: allExercises, [name]: deleteField() });
             if (currentExercise === name) currentExercise = allExercises[0];
             fetchData();
         }
@@ -326,19 +288,8 @@
         document.body.setAttribute('data-theme', t);
         document.getElementById('themeIcon').innerText = t === 'dark' ? '☀️' : '🌙';
     };
-    function renderNav() { 
-        document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `
-            <div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">${ex.toUpperCase()}</div>
-        `).join(''); 
-    }
-    function renderManageList() { 
-        document.getElementById('manageList').innerHTML = allExercises.map(ex => `
-            <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #2C2C2C;">
-                <span>${ex}</span>
-                <button onclick="window.deleteExercise('${ex}')" style="color:#FF3B30; background:none; border:none; font-weight:800;">USUŃ</button>
-            </div>
-        `).join(''); 
-    }
+    function renderNav() { document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `<div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">${ex.toUpperCase()}</div>`).join(''); }
+    function renderManageList() { document.getElementById('manageList').innerHTML = allExercises.map(ex => `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #2C2C2C;"><span>${ex}</span><button onclick="window.deleteExercise('${ex}')" style="color:#FF3B30; background:none; border:none; font-weight:800;">USUŃ</button></div>`).join(''); }
 </script>
 </body>
 </html>
