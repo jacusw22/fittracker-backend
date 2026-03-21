@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FitTracker Firebase</title>
+    <title>FitTracker Custom</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -20,7 +20,7 @@
         body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; transition: 0.3s; }
         .container { width: 100%; max-width: 420px; height: 100vh; display: flex; flex-direction: column; padding: 15px; position: relative; }
         .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
-        .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--text); font-size: 18px; }
+        .theme-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .bubble-cluster { flex: 1; position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
         .bubble { border-radius: 50%; background-color: var(--card-bg); border: 2px solid var(--accent); box-shadow: var(--glow); transition: all 0.2s; cursor: pointer; position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .bubble-completed { width: 42vh; height: 42vh; max-width: 230px; max-height: 230px; z-index: 5; border-color: #A855F7; }
@@ -30,15 +30,15 @@
         .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
         .bubble-actions { position: absolute; right: 5%; top: 30%; display: flex; flex-direction: column; gap: 12px; z-index: 10; }
         .bubble-action { width: 48px; height: 48px; border-radius: 50%; background-color: var(--card-bg); border: 2px solid #22C55E; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
+        .bottom-nav { background-color: var(--card-bg); border-radius: var(--radius); padding: 8px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; min-height: 60px; }
         .nav-item { padding: 12px 18px; background-color: var(--bg); border-radius: 12px; font-weight: 600; font-size: 13px; color: var(--muted); border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; cursor: pointer; }
         .nav-item.active { background-color: var(--accent); color: white; border-color: var(--accent); }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .overlay.show { display: flex; }
-        .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); }
+        .modal { background: var(--card-bg); border-radius: var(--radius); padding: 25px; width: 85%; max-width: 340px; text-align: center; border: 1px solid var(--border); max-height: 80vh; overflow-y: auto; }
         .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: white; font-size: 14px; width: 100%; margin-top: 8px; }
-        .btn-google { background: #EA4335; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .timer-input { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid var(--accent); border-radius: 8px; text-align: center; font-size: 20px; margin-bottom: 10px; }
+        .ex-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+        .input-dark { width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
         .ach-icon { font-size: 24px; filter: grayscale(1); opacity: 0.3; transition: 0.5s; }
         .ach-icon.unlocked { filter: grayscale(0); opacity: 1; transform: scale(1.2); }
     </style>
@@ -48,7 +48,10 @@
 <div class="container" id="appContent" style="display:none;">
     <div class="header">
         <h1 id="exerciseTitle">Pompki</h1>
-        <button class="theme-btn" onclick="toggleTheme()" id="themeIcon">☀️</button>
+        <div style="display:flex; gap:10px;">
+            <button class="theme-btn" onclick="openModal('overlayManage')">⚙️</button>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeIcon">☀️</button>
+        </div>
     </div>
 
     <div style="display:flex; justify-content:center; gap:10px; margin: 10px 0;">
@@ -78,27 +81,32 @@
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchExercise('pompki')">Pompki</div>
-        <div class="nav-item" onclick="switchExercise('przysiady')">Przysiady</div>
-        <div class="nav-item" onclick="switchExercise('brzuszki')">Brzuszki</div>
-        <div class="nav-item" onclick="switchExercise('pajacyki')">Pajacyki</div>
-    </div>
+    <div class="bottom-nav" id="exerciseNav"></div>
 </div>
 
 <div class="overlay show" id="overlayLogin">
     <div class="modal">
         <h2>Witaj w FitTracker</h2>
-        <p style="color:var(--muted); margin: 15px 0;">Zaloguj się, aby zapisywać swoje pompki w chmurze Google.</p>
-        <button class="btn btn-google" onclick="login()">Zaloguj przez Google</button>
+        <p style="color:var(--muted); margin: 15px 0;">Zaloguj się przez Google, aby zarządzać swoimi ćwiczeniami.</p>
+        <button class="btn" style="background:#EA4335" onclick="login()">Zaloguj przez Google</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlayManage" onclick="closeModal('overlayManage')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h3>Twoje ćwiczenia</h3>
+        <div id="manageList" style="margin: 15px 0;"></div>
+        <input type="text" id="newExInput" class="input-dark" placeholder="Nazwa (np. Podciągania)">
+        <button class="btn" style="background: var(--accent)" onclick="addNewExercise()">DODAJ NOWE</button>
+        <button class="btn" style="background: #8E8E93" onclick="closeModal('overlayManage')">ZAMKNIJ</button>
     </div>
 </div>
 
 <div class="overlay" id="overlayTimer" onclick="closeModal('overlayTimer')">
     <div class="modal" onclick="event.stopPropagation()">
-        <input type="number" id="timerInput" class="timer-input" value="60">
-        <div id="timerDisplay" style="font-size: 50px; font-weight: 800;">01:00</div>
-        <button class="btn" style="background:#34C759" id="timerBtn" onclick="toggleTimer()">START</button>
+        <input type="number" id="timerInput" class="input-dark" style="text-align:center; font-size:24px" value="60">
+        <div id="timerDisplay" style="font-size: 50px; font-weight: 800; margin: 10px 0;">01:00</div>
+        <button class="btn" id="timerBtn" style="background:#34C759" onclick="toggleTimer()">START</button>
         <button class="btn" style="background:#8E8E93" onclick="resetTimer()">RESET</button>
     </div>
 </div>
@@ -106,9 +114,8 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // TWOJA KONFIGURACJA FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCaANa-QTYdUp1GSy438hIeHLAMLCJNwwM",
         authDomain: "fittracker-pwa.firebaseapp.com",
@@ -125,9 +132,10 @@
 
     let currentUser = null;
     let currentExercise = 'pompki';
+    let allExercises = [];
     let timerInterval, timeLeft = 60, isTimerRunning = false;
 
-    // --- AUTH ---
+    // AUTH
     window.login = () => signInWithPopup(auth, provider);
     window.logout = () => signOut(auth);
 
@@ -143,50 +151,90 @@
         }
     });
 
-    // --- DATA ---
+    // DATA LOGIC
     async function fetchData() {
-    if (!currentUser) return;
-    const docRef = doc(db, "users", currentUser.uid);
-    const docSnap = await getDoc(docRef);
-    
-    const today = new Date().toLocaleDateString(); // Dzisiejsza data jako tekst
-    let data = { 
-        lastUpdate: today,
-        pompki: { daily: 0, total: 0, goal: 100 },
-        przysiady: { daily: 0, total: 0, goal: 100 },
-        brzuszki: { daily: 0, total: 0, goal: 100 },
-        pajacyki: { daily: 0, total: 0, goal: 100 }
-    };
+        if (!currentUser) return;
+        const docRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        
+        const today = new Date().toLocaleDateString();
+        let data = { 
+            lastUpdate: today,
+            exercises: ['pompki', 'przysiady', 'brzuszki'],
+            pompki: { daily: 0, total: 0, goal: 100 },
+            przysiady: { daily: 0, total: 0, goal: 100 },
+            brzuszki: { daily: 0, total: 0, goal: 100 }
+        };
 
-    if (docSnap.exists()) {
-        const cloudData = docSnap.data();
-        // Sprawdź czy data w chmurze jest inna niż dzisiejsza
-        if (cloudData.lastUpdate !== today) {
-            // Jeśli nowy dzień, wyzeruj daily dla wszystkich ćwiczeń
-            Object.keys(cloudData).forEach(key => {
-                if (cloudData[key] && cloudData[key].daily !== undefined) {
-                    cloudData[key].daily = 0;
-                }
-            });
-            cloudData.lastUpdate = today;
-            await setDoc(docRef, cloudData);
+        if (docSnap.exists()) {
+            data = docSnap.data();
+            if (data.lastUpdate !== today) {
+                data.exercises.forEach(ex => { if(data[ex]) data[ex].daily = 0; });
+                data.lastUpdate = today;
+                await setDoc(docRef, data);
+            }
+        } else {
+            await setDoc(docRef, data);
         }
-        data = cloudData;
-    } else {
-        await setDoc(docRef, data);
+
+        allExercises = data.exercises || ['pompki'];
+        if (!allExercises.includes(currentExercise)) currentExercise = allExercises[0];
+        
+        renderNav();
+        renderManageList();
+
+        const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100 };
+        document.getElementById('exerciseTitle').innerText = currentExercise.charAt(0).toUpperCase() + currentExercise.slice(1);
+        document.getElementById('dailyDisplay').innerText = ex.daily;
+        document.getElementById('totalDisplay').innerText = ex.total;
+        document.getElementById('targetDisplay').innerText = ex.goal;
+        
+        updateAchievements(ex);
     }
 
-    const ex = data[currentExercise] || { daily: 0, total: 0, goal: 100 };
-    document.getElementById('dailyDisplay').innerText = ex.daily;
-    document.getElementById('totalDisplay').innerText = ex.total;
-    document.getElementById('targetDisplay').innerText = ex.goal;
+    function renderNav() {
+        document.getElementById('exerciseNav').innerHTML = allExercises.map(ex => `
+            <div class="nav-item ${ex === currentExercise ? 'active' : ''}" onclick="window.switchExercise('${ex}')">
+                ${ex.charAt(0).toUpperCase() + ex.slice(1)}
+            </div>
+        `).join('');
+    }
 
-    // Achievements
-    document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
-    document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
-    document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
-    document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
-}
+    function renderManageList() {
+        document.getElementById('manageList').innerHTML = allExercises.map(ex => `
+            <div class="ex-list-item">
+                <span>${ex}</span>
+                <button onclick="window.deleteExercise('${ex}')" style="background:none; border:none; color:#FF3B30; font-weight:800; cursor:pointer">USUŃ</button>
+            </div>
+        `).join('');
+    }
+
+    window.addNewExercise = async () => {
+        const input = document.getElementById('newExInput');
+        const name = input.value.trim().toLowerCase();
+        if (name && !allExercises.includes(name)) {
+            allExercises.push(name);
+            const docRef = doc(db, "users", currentUser.uid);
+            await updateDoc(docRef, {
+                exercises: allExercises,
+                [name]: { daily: 0, total: 0, goal: 100 }
+            });
+            input.value = '';
+            fetchData();
+        }
+    };
+
+    window.deleteExercise = async (name) => {
+        if (allExercises.length <= 1) return alert("Zostaw chociaż jedno ćwiczenie!");
+        if (confirm(`Czy na pewno usunąć ${name}?`)) {
+            allExercises = allExercises.filter(e => e !== name);
+            const docRef = doc(db, "users", currentUser.uid);
+            await updateDoc(docRef, { exercises: allExercises, [name]: deleteField() });
+            fetchData();
+        }
+    };
+
+    window.switchExercise = (name) => { currentExercise = name; fetchData(); };
 
     window.addReps = async (n) => {
         const docRef = doc(db, "users", currentUser.uid);
@@ -206,25 +254,26 @@
         }
     };
 
-    window.switchExercise = (type) => {
-        currentExercise = type;
-        document.getElementById('exerciseTitle').innerText = type.charAt(0).toUpperCase() + type.slice(1);
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.innerText.toLowerCase() === type));
-        fetchData();
+    // UI & TIMER
+    window.openModal = (id) => document.getElementById(id).classList.add('show');
+    window.closeModal = (id) => document.getElementById(id).classList.remove('show');
+    
+    window.toggleTheme = () => {
+        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', theme);
+        document.getElementById('themeIcon').innerText = theme === 'dark' ? '☀️' : '🌙';
     };
 
-    // --- TIMER ---
     window.toggleTimer = () => {
         if (isTimerRunning) {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
+            clearInterval(timerInterval); isTimerRunning = false;
             document.getElementById('timerBtn').innerText = "WZNÓW";
         } else {
             if (timeLeft === 60) timeLeft = parseInt(document.getElementById('timerInput').value);
             isTimerRunning = true;
             document.getElementById('timerBtn').innerText = "PAUZA";
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) { timeLeft--; updateTimerDisplay(); }
+                if (timeLeft > 0) { timeLeft--; updateTimerUI(); }
                 else { clearInterval(timerInterval); alert("Czas minął!"); resetTimer(); }
             }, 1000);
         }
@@ -233,23 +282,21 @@
     window.resetTimer = () => {
         clearInterval(timerInterval); isTimerRunning = false;
         timeLeft = parseInt(document.getElementById('timerInput').value);
-        updateTimerDisplay();
+        updateTimerUI();
         document.getElementById('timerBtn').innerText = "START";
     };
 
-    function updateTimerDisplay() {
+    function updateTimerUI() {
         const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
         document.getElementById('timerDisplay').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    // --- UI ---
-    window.openModal = (id) => document.getElementById(id).classList.add('show');
-    window.closeModal = (id) => document.getElementById(id).classList.remove('show');
-    window.toggleTheme = () => {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
-        document.getElementById('themeIcon').innerText = theme === 'dark' ? '☀️' : '🌙';
-    };
+    function updateAchievements(ex) {
+        document.getElementById('ach-10').classList.toggle('unlocked', ex.daily >= 10);
+        document.getElementById('ach-50').classList.toggle('unlocked', ex.daily >= 50);
+        document.getElementById('ach-100').classList.toggle('unlocked', ex.daily >= 100);
+        document.getElementById('ach-target').classList.toggle('unlocked', ex.daily >= ex.goal);
+    }
 </script>
 </body>
 </html>
